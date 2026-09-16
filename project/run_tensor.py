@@ -3,6 +3,8 @@ Be sure you have minitorch installed in you Virtual Env.
 >>> pip install -Ue .
 """
 
+import time
+
 import minitorch
 
 
@@ -45,8 +47,14 @@ class Linear(minitorch.Module):
         # END ASSIGN2.5
 
 
-def default_log_fn(epoch, total_loss, correct, losses):
-    print("Epoch ", epoch, " loss ", total_loss, "correct", correct)
+def default_log_fn(epoch, total_loss, correct, losses, epoch_time=None):
+    if epoch_time is not None:
+        print(
+            "Epoch ", epoch, " loss ", total_loss, "correct", correct,
+            "time %.4f" % epoch_time,
+        )
+    else:
+        print("Epoch ", epoch, " loss ", total_loss, "correct", correct)
 
 
 class TensorTrain:
@@ -72,6 +80,7 @@ class TensorTrain:
 
         losses = []
         for epoch in range(1, self.max_epochs + 1):
+            start = time.time()
             total_loss = 0.0
             correct = 0
             optim.zero_grad()
@@ -92,7 +101,7 @@ class TensorTrain:
             if epoch % 10 == 0 or epoch == max_epochs:
                 y2 = minitorch.tensor(data.y)
                 correct = int(((out.detach() > 0.5) == y2).sum()[0])
-                log_fn(epoch, total_loss, correct, losses)
+                log_fn(epoch, total_loss, correct, losses, time.time() - start)
 
 
 if __name__ == "__main__":
